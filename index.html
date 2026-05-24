@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCOPE Protocol × Mind Monitor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+:root{--bg:#0a0f1c;--panel:#0f1828;--panel2:#111d2e;--border:#1c2d44;--border2:#243650;--blue:#4a9fd4;--blue-dim:rgba(74,159,212,0.15);--blue-glow:rgba(74,159,212,0.3);--text:#cdd8e8;--text-dim:#4a6070;--text-mid:#7a9ab0;--green:#2a7a3a;--green-bg:#1a3a22;--green-text:#4acd6a;--amber:#7a5a10;--amber-bg:#3a2c08;--amber-text:#c8941a;--red:#7a1a1a;--red-bg:#3a0e0e;--red-text:#e03030;--purple:#4a2a7a;--purple-text:#9a6acd;--steel:#1e3048;--mono:'Share Tech Mono',monospace;--ui:'Rajdhani',sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+.hdr{background:var(--panel);border-bottom:2px solid var(--border2);padding:10px 20px;display:flex;align-items:center;justify-content:center;gap:16px}
+.hdr-deco{flex:1;display:flex;align-items:center;gap:4px}
+.hdr-deco span{display:block;height:2px;background:var(--blue);opacity:.5}
+.hdr-deco span:nth-child(1){flex:3}.hdr-deco span:nth-child(2){flex:1;opacity:.25}.hdr-deco span:nth-child(3){flex:2;opacity:.12}
+.hdr-title{font-family:var(--ui);font-weight:700;font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:var(--text);white-space:nowrap}
+.hdr-title em{color:var(--blue);font-style:normal}
+.input-row{background:var(--panel2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.input-label{font-family:var(--ui);font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--text-mid);white-space:nowrap}
+.input-label.sel{color:var(--blue)}.input-label strong{color:var(--text)}
+.inp{flex:1;min-width:180px;background:rgba(0,0,0,.3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;padding:7px 10px;outline:none;resize:none;line-height:1.4}
+.inp:focus{border-color:var(--blue)}.inp::placeholder{color:var(--text-dim)}
+.inp-persona{max-width:260px;height:34px}.inp-transcript{height:34px}
+.scan-btn{background:var(--blue);border:none;color:#fff;font-family:var(--ui);font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:9px 18px;cursor:pointer;white-space:nowrap;transition:background .2s,box-shadow .2s}
+.scan-btn:hover{background:#5ab0e8;box-shadow:0 0 12px var(--blue-glow)}.scan-btn:disabled{background:var(--border2);color:var(--text-dim);cursor:not-allowed;box-shadow:none}
+.scan-btn.running{background:#c87010;animation:btnPulse 1s infinite}
+@keyframes btnPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.persona-presets{display:flex;gap:5px;flex-wrap:wrap}
+.preset{font-size:10px;font-family:var(--ui);font-weight:600;letter-spacing:.06em;padding:3px 8px;border:1px solid var(--border2);color:var(--text-dim);cursor:pointer;transition:all .15s;background:transparent}
+.preset:hover{border-color:var(--blue);color:var(--blue)}
+.main-grid{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1px;background:var(--border);min-height:0}
+.panel{background:var(--panel);padding:14px 16px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;min-height:160px}
+.panel::-webkit-scrollbar{width:3px}.panel::-webkit-scrollbar-thumb{background:var(--border2)}
+.panel-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.panel-icon{width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:8px solid var(--blue);flex-shrink:0}
+.panel-title{font-family:var(--ui);font-size:13px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text)}
+.fact-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(28,45,68,.6);opacity:0;animation:rowIn .3s forwards}
+.fact-row:last-child{border-bottom:none}
+@keyframes rowIn{to{opacity:1}}
+.fact-bullet{width:5px;height:5px;background:var(--blue);flex-shrink:0}
+.fact-text{flex:1;font-family:var(--ui);font-size:13px;font-weight:500;color:var(--text);line-height:1.3}
+.seg-bar{display:flex;gap:2px;align-items:center;flex-shrink:0}
+.seg{width:14px;height:10px;background:var(--border2)}
+.seg.on-green{background:#3aaa50}.seg.on-amber{background:#c89020}.seg.on-red{background:#cc3030}.seg.on-blue{background:var(--blue)}
+.tag{font-family:var(--ui);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 7px;text-transform:uppercase;flex-shrink:0;min-width:64px;text-align:center}
+.tag-fact,.tag-timing,.tag-visual,.tag-decision{background:var(--green);color:var(--green-text)}
+.tag-risk,.tag-action{background:var(--red);color:var(--red-text)}
+.tag-insight{background:var(--blue-dim);color:var(--blue);border:1px solid var(--border2)}
+.tag-context{background:var(--steel);color:var(--text-mid)}
+.tag-spec,.tag-unclear{background:var(--amber);color:var(--amber-text)}
+.gap-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(28,45,68,.6);opacity:0;animation:rowIn .3s forwards}
+.gap-row:last-child{border-bottom:none}
+.gap-text{flex:1;font-family:var(--ui);font-size:13px;font-weight:500;color:var(--text)}
+.gap-badge{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.gap-q{width:18px;height:18px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text-mid)}
+.gap-unk{font-family:var(--ui);font-size:10px;font-weight:700;letter-spacing:.1em;padding:2px 7px;border:1px solid var(--border2);color:var(--text-mid);background:var(--steel)}
+.persona-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(28,45,68,.6);opacity:0;animation:rowIn .3s forwards}
+.persona-row:last-child{border-bottom:none}
+.persona-key{font-family:var(--ui);font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:6px}
+.persona-val{font-family:var(--ui);font-size:10px;font-weight:700;letter-spacing:.1em;padding:2px 8px;text-transform:uppercase}
+.val-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(74,159,212,.3)}
+.val-green{background:var(--green-bg);color:var(--green-text)}
+.val-amber{background:var(--amber-bg);color:var(--amber-text)}
+.val-purple{background:var(--purple);color:var(--purple-text)}
+.val-red{background:var(--red-bg);color:var(--red-text)}
+.gauge-bar{background:var(--panel2);border-top:2px solid var(--border2);display:flex;justify-content:space-around;align-items:center;padding:12px 24px 10px;gap:16px}
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.gauge-label{font-family:var(--ui);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-mid);text-align:center}
+.gauge-svg-wrap{position:relative;width:130px;height:68px}
+.gauge-svg-wrap svg{width:100%;height:100%}
+.gauge-num{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);font-family:var(--ui);font-weight:700;font-size:22px;color:var(--text);text-align:center;pointer-events:none}
+.gauge-divider{width:1px;height:60px;background:var(--border2);flex-shrink:0}
+.ph{color:var(--text-dim);font-family:var(--ui);font-size:12px;font-weight:500;line-height:1.8;padding:4px 0}
+.err-msg{color:var(--red-text);font-family:var(--mono);font-size:10px;padding:4px 0 0}
+.status-bar{background:rgba(0,0,0,.4);border-bottom:1px solid var(--border);padding:4px 16px;display:flex;gap:20px;font-family:var(--mono);font-size:10px;color:var(--text-dim)}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;background:var(--text-dim)}
+.status-dot.live{background:var(--green-text);box-shadow:0 0 6px var(--green-text);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-deco"><span></span><span></span><span></span></div>
+  <div class="hdr-title">SCOPE PROTOCOL <em>×</em> MIND SCAN</div>
+  <div class="hdr-deco" style="transform:scaleX(-1)"><span></span><span></span><span></span></div>
+</div>
+
+<div class="status-bar">
+  <span><span class="status-dot" id="sDot"></span><span id="sText">STANDBY</span></span>
+  <span id="sFactCount">SIGNALS: —</span>
+  <span id="sCallCount">API CALLS: 0</span>
+  <span>QUESTIONS: 9 / SCOPE</span>
+</div>
+
+<div class="input-row">
+  <span class="input-label">Input Transcript:</span>
+  <textarea class="inp inp-transcript" id="transcript" placeholder="Paste transcript, notes, or any text..."></textarea>
+  <span class="input-label sel">Selected Persona: <strong id="personaLabel">"Custom"</strong></span>
+  <textarea class="inp inp-persona" id="persona" placeholder="Describe the persona..."></textarea>
+  <div class="persona-presets">
+    <button class="preset" onclick="setP('pm')">PM</button>
+    <button class="preset" onclick="setP('eng')">Engineer</button>
+    <button class="preset" onclick="setP('exec')">Exec</button>
+    <button class="preset" onclick="setP('research')">Researcher</button>
+    <button class="preset" onclick="setP('agent')">Agent</button>
+  </div>
+  <button class="scan-btn" id="scanBtn" onclick="runScan()">INITIATE MIND SCAN</button>
+  <div id="errMsg" class="err-msg"></div>
+</div>
+
+<div class="main-grid">
+  <div class="panel" id="panelPriority">
+    <div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Priority Signals</div></div>
+    <div id="priorityContent"><div class="ph">High-certainty signals aligned with persona goals will appear here.</div></div>
+  </div>
+  <div class="panel" id="panelGaps">
+    <div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Knowledge Gaps</div></div>
+    <div id="gapsContent"><div class="ph">Items flagged as requiring context or simplification for this persona.</div></div>
+  </div>
+  <div class="panel" id="panelUncertain">
+    <div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Uncertain Signals</div></div>
+    <div id="uncertainContent"><div class="ph">Ambiguous or hard-to-classify items for this persona.</div></div>
+  </div>
+  <div class="panel" id="panelPersona">
+    <div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Persona Read</div></div>
+    <div id="personaContent"><div class="ph">Inferred persona state: knowledge, projects, goals, concerns.</div></div>
+  </div>
+</div>
+
+<div class="gauge-bar">
+  <div class="gauge-wrap">
+    <div class="gauge-label">Relevance</div>
+    <div class="gauge-svg-wrap">
+      <svg viewBox="0 0 130 68" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="#1c2d44" stroke-width="8" stroke-linecap="round"/>
+        <defs><linearGradient id="gRel" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#cc3030"/><stop offset="40%" stop-color="#c89020"/><stop offset="70%" stop-color="#3aaa50"/><stop offset="100%" stop-color="#3aaa50"/></linearGradient></defs>
+        <path id="arcRel" d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="url(#gRel)" stroke-width="8" stroke-linecap="round" stroke-dasharray="172.8" stroke-dashoffset="172.8" style="transition:stroke-dashoffset .9s ease"/>
+        <g stroke="#1c2d44" stroke-width="1.5"><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-90,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-67.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-45,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-22.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(0,65,65)"/></g>
+        <line id="needleRel" x1="65" y1="65" x2="65" y2="18" stroke="#e0e8f0" stroke-width="2" stroke-linecap="round" transform="rotate(-90,65,65)" style="transition:transform .9s ease"/>
+        <circle cx="65" cy="65" r="4" fill="#1c2d44" stroke="#4a9fd4" stroke-width="1.5"/>
+      </svg>
+      <div class="gauge-num" id="numRel">—</div>
+    </div>
+  </div>
+  <div class="gauge-divider"></div>
+  <div class="gauge-wrap">
+    <div class="gauge-label">Certainty</div>
+    <div class="gauge-svg-wrap">
+      <svg viewBox="0 0 130 68" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="#1c2d44" stroke-width="8" stroke-linecap="round"/>
+        <defs><linearGradient id="gCert" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1a4a6a"/><stop offset="50%" stop-color="#2a7ab0"/><stop offset="100%" stop-color="#4a9fd4"/></linearGradient></defs>
+        <path id="arcCert" d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="url(#gCert)" stroke-width="8" stroke-linecap="round" stroke-dasharray="172.8" stroke-dashoffset="172.8" style="transition:stroke-dashoffset .9s ease"/>
+        <g stroke="#1c2d44" stroke-width="1.5"><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-90,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-67.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-45,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-22.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(0,65,65)"/></g>
+        <line id="needleCert" x1="65" y1="65" x2="65" y2="18" stroke="#e0e8f0" stroke-width="2" stroke-linecap="round" transform="rotate(-90,65,65)" style="transition:transform .9s ease"/>
+        <circle cx="65" cy="65" r="4" fill="#1c2d44" stroke="#4a9fd4" stroke-width="1.5"/>
+      </svg>
+      <div class="gauge-num" id="numCert">—</div>
+    </div>
+  </div>
+  <div class="gauge-divider"></div>
+  <div class="gauge-wrap">
+    <div class="gauge-label">Focus</div>
+    <div class="gauge-svg-wrap">
+      <svg viewBox="0 0 130 68" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="#1c2d44" stroke-width="8" stroke-linecap="round"/>
+        <defs><linearGradient id="gFocus" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2a1a4a"/><stop offset="50%" stop-color="#5a2a9a"/><stop offset="100%" stop-color="#9a6acd"/></linearGradient></defs>
+        <path id="arcFocus" d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="url(#gFocus)" stroke-width="8" stroke-linecap="round" stroke-dasharray="172.8" stroke-dashoffset="172.8" style="transition:stroke-dashoffset .9s ease"/>
+        <g stroke="#1c2d44" stroke-width="1.5"><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-90,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-67.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-45,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-22.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(0,65,65)"/></g>
+        <line id="needleFocus" x1="65" y1="65" x2="65" y2="18" stroke="#e0e8f0" stroke-width="2" stroke-linecap="round" transform="rotate(-90,65,65)" style="transition:transform .9s ease"/>
+        <circle cx="65" cy="65" r="4" fill="#1c2d44" stroke="#4a9fd4" stroke-width="1.5"/>
+      </svg>
+      <div class="gauge-num" id="numFocus">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PERSONAS={pm:{label:'"Product Manager"',text:'Product Manager focused on Q3 roadmap delivery, sprint velocity, and stakeholder communication. Cares about customer-facing features and cross-team dependencies. Less technical, needs implementation details translated into business impact.'},eng:{label:'"Senior Engineer"',text:'Senior software engineer focused on system reliability and technical debt. Skeptical of timeline estimates. Primary concerns: API performance, infrastructure costs, breaking changes, and test coverage. Wants root causes, not symptoms.'},exec:{label:'"Executive"',text:'VP of Product. Time-constrained. Needs strategic signal over tactical detail. Primary concerns: revenue impact, competitive positioning, team capacity, and risk. Wants decisions, not discussions.'},research:{label:'"Researcher"',text:'NLP researcher interested in methodology, evaluation metrics, and reproducibility. Skeptical of benchmark claims. Wants to understand design choices and theoretical grounding. Reads critically, looks for ablations and failure modes.'},agent:{label:'"Undercover Agent"',text:'Intelligence operative with mission-critical focus. Trained observer. Interested in anomalies, timing, locations, identities, and potential threats. Stealth protocol active. Heightened alert status. Tactical and cautious.'}};
+let apiCalls=0;
+function setP(k){const p=PERSONAS[k];document.getElementById('persona').value=p.text;document.getElementById('personaLabel').textContent=p.label}
+function setGauge(id,val){const pct=Math.min(100,Math.max(0,val));const c=172.8;document.getElementById('arc'+id).style.strokeDashoffset=c-(c*pct/100);const angle=-90+(pct/100*180);document.getElementById('needle'+id).setAttribute('transform',`rotate(${angle},65,65)`);document.getElementById('num'+id).textContent=Math.round(pct)}
+function makeSegs(score,color='green',total=7){const on=Math.round((score/100)*total);let h='<div class="seg-bar">';for(let i=0;i<total;i++)h+=`<div class="seg${i<on?' on-'+color:''}"></div>`;return h+'</div>'}
+function tagClass(t){const m={DECISION:'tag-decision',ACTION:'tag-action',INSIGHT:'tag-insight',CONTEXT:'tag-context',FACT:'tag-fact',TIMING:'tag-timing',VISUAL:'tag-visual',RISK:'tag-risk',SPECULATIVE:'tag-spec',UNCLEAR:'tag-unclear'};return m[t?.toUpperCase()]||'tag-context'}
+function renderPriority(signals){const c=document.getElementById('priorityContent');c.innerHTML='';if(!signals?.length){c.innerHTML='<div class="ph">No priority signals detected.</div>';return}signals.forEach((s,i)=>{const div=document.createElement('div');div.className='fact-row';div.style.animationDelay=(i*.07)+'s';const sc=s.score>=70?'green':s.score>=40?'amber':'red';const t=(s.type||'FACT').toUpperCase();div.innerHTML=`<div class="fact-bullet"></div><div class="fact-text">${s.text}</div>${makeSegs(s.score,sc)}<div class="tag ${tagClass(t)}">${t}</div>`;c.appendChild(div)})}
+function renderGaps(gaps){const c=document.getElementById('gapsContent');c.innerHTML='';if(!gaps?.length){c.innerHTML='<div class="ph">No knowledge gaps flagged.</div>';return}gaps.forEach((g,i)=>{const div=document.createElement('div');div.className='gap-row';div.style.animationDelay=(i*.07)+'s';div.innerHTML=`<div class="fact-bullet"></div><div class="gap-text">${g}</div><div class="gap-badge"><div class="gap-q">?</div><div class="gap-unk">UNKNOWN</div></div>`;c.appendChild(div)})}
+function renderUncertain(items){const c=document.getElementById('uncertainContent');c.innerHTML='';if(!items?.length){c.innerHTML='<div class="ph">No uncertain signals.</div>';return}items.forEach((item,i)=>{const div=document.createElement('div');div.className='fact-row';div.style.animationDelay=(i*.07)+'s';div.innerHTML=`<div class="fact-bullet"></div><div class="fact-text">${item}</div>${makeSegs(45+Math.random()*20,'amber',7)}<div class="tag ${i%2===0?'tag-spec':'tag-unclear'}">${i%2===0?'SPECULATIVE':'UNCLEAR'}</div>`;c.appendChild(div)})}
+function renderPersona(profile){const c=document.getElementById('personaContent');c.innerHTML='';if(!profile){c.innerHTML='<div class="ph">No persona data.</div>';return}const rows=[['Prior Knowledge',profile.prior_knowledge,'val-blue'],['Active Project',profile.active_project,'val-green'],['Primary Goals',profile.goals,'val-blue'],['Alert Status',profile.urgency,'val-amber'],['Stance',profile.stance,'val-purple']];rows.forEach(([key,val,cls],i)=>{if(!val)return;const div=document.createElement('div');div.className='persona-row';div.style.animationDelay=(i*.07)+'s';const badge=val.length>22?val.substring(0,20)+'…':val;div.innerHTML=`<div class="persona-key"><div class="fact-bullet"></div>${key}</div><div class="persona-val ${cls}">${badge.toUpperCase()}</div>`;c.appendChild(div)})}
+async function runScan(){
+  const transcript=document.getElementById('transcript').value.trim();
+  const persona=document.getElementById('persona').value.trim();
+  const btn=document.getElementById('scanBtn');
+  const err=document.getElementById('errMsg');
+  err.textContent='';
+  if(!transcript){err.textContent='ERROR: No transcript provided.';return}
+  if(!persona){err.textContent='ERROR: No persona provided.';return}
+  btn.disabled=true;btn.classList.add('running');btn.textContent='◉ SCANNING...';
+  document.getElementById('sDot').className='status-dot live';
+  document.getElementById('sText').textContent='ACTIVE';
+  ['priorityContent','gapsContent','uncertainContent','personaContent'].forEach(id=>{document.getElementById(id).innerHTML='<div class="ph" style="color:var(--blue);opacity:.6">[ Processing... ]</div>'});
+  const sys=`You are the SCOPE reasoning layer. Embody the given persona completely and analyze text from their exact perspective using a 9-question protocol.\n\nRespond ONLY with valid JSON:\n{\n  "metrics": { "relevance_score": 0-100, "certainty_score": 0-100, "focus_score": 0-100 },\n  "priority_signals": [ {"text": "concise signal", "score": 0-100, "type": "DECISION|ACTION|INSIGHT|FACT|TIMING|VISUAL|RISK|CONTEXT"} ],\n  "knowledge_gaps": ["string"],\n  "uncertain_signals": ["string"],\n  "persona_profile": { "prior_knowledge": "brief phrase", "active_project": "brief phrase", "goals": "brief phrase", "urgency": "brief phrase", "stance": "brief phrase" }\n}\n\nRules: priority_signals 3-6 items; knowledge_gaps 2-4 items; uncertain_signals 1-3 items; persona_profile single short phrases ≤5 words each; all scores integers 0-100.`;
+  const user=`EMBODY THIS PERSONA:\n${persona}\n\nANALYZE THIS TEXT:\n${transcript}\n\nApply SCOPE 9-question reasoning as this persona. Return only JSON.`;
+  try{
+    apiCalls++;
+    document.getElementById('sCallCount').textContent=`API CALLS: ${apiCalls}`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:user}]})});
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message);
+    const raw=data.content[0].text;
+    let result;
+    try{const m=raw.match(/\{[\s\S]*\}/);result=JSON.parse(m?m[0]:raw)}catch(e){throw new Error('JSON parse failed: '+e.message)}
+    const met=result.metrics||{};
+    setTimeout(()=>{setGauge('Rel',met.relevance_score||0);setGauge('Cert',met.certainty_score||0);setGauge('Focus',met.focus_score||0)},150);
+    setTimeout(()=>{renderPriority(result.priority_signals);renderGaps(result.knowledge_gaps);renderUncertain(result.uncertain_signals);renderPersona(result.persona_profile);document.getElementById('sFactCount').textContent=`SIGNALS: ${(result.priority_signals||[]).length}`},300);
+    document.getElementById('sDot').className='status-dot';document.getElementById('sDot').style.background='var(--green-text)';document.getElementById('sText').textContent='COMPLETE';
+  }catch(e){
+    err.textContent='SCAN ERROR: '+e.message;
+    document.getElementById('sDot').className='status-dot warn';document.getElementById('sText').textContent='ERROR';
+    ['priorityContent','gapsContent','uncertainContent','personaContent'].forEach(id=>{document.getElementById(id).innerHTML='<div class="ph">—</div>'});
+  }
+  btn.disabled=false;btn.classList.remove('running');btn.textContent='INITIATE MIND SCAN';
+}
+</script>
+</body>
+</html>
