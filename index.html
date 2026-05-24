@@ -15,6 +15,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 .hdr-deco span:nth-child(1){flex:3}.hdr-deco span:nth-child(2){flex:1;opacity:.25}.hdr-deco span:nth-child(3){flex:2;opacity:.12}
 .hdr-title{font-family:var(--ui);font-weight:700;font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:var(--text);white-space:nowrap}
 .hdr-title em{color:var(--blue);font-style:normal}
+.apikey-bar{background:#060c18;border-bottom:1px solid var(--border);padding:7px 16px;display:flex;align-items:center;gap:10px}
+.apikey-bar label{font-family:var(--mono);font-size:10px;color:var(--text-dim);white-space:nowrap;letter-spacing:.08em}
+.apikey-bar input{flex:1;max-width:340px;background:rgba(0,0,0,.5);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:11px;padding:5px 10px;outline:none}
+.apikey-bar input:focus{border-color:var(--blue)}
+.apikey-bar input::placeholder{color:var(--text-dim)}
+.apikey-hint{font-family:var(--mono);font-size:10px;color:var(--text-dim)}
+.apikey-hint a{color:var(--blue);text-decoration:none}
+.apikey-hint a:hover{text-decoration:underline}
+.key-dot{width:7px;height:7px;border-radius:50%;background:var(--text-dim);flex-shrink:0}
+.key-dot.ok{background:var(--green-text);box-shadow:0 0 5px var(--green-text)}
 .input-row{background:var(--panel2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .input-label{font-family:var(--ui);font-size:12px;font-weight:600;letter-spacing:.08em;color:var(--text-mid);white-space:nowrap}
 .input-label.sel{color:var(--blue)}.input-label strong{color:var(--text)}
@@ -41,7 +51,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 .fact-text{flex:1;font-family:var(--ui);font-size:13px;font-weight:500;color:var(--text);line-height:1.3}
 .seg-bar{display:flex;gap:2px;align-items:center;flex-shrink:0}
 .seg{width:14px;height:10px;background:var(--border2)}
-.seg.on-green{background:#3aaa50}.seg.on-amber{background:#c89020}.seg.on-red{background:#cc3030}.seg.on-blue{background:var(--blue)}
+.seg.on-green{background:#3aaa50}.seg.on-amber{background:#c89020}.seg.on-red{background:#cc3030}
 .tag{font-family:var(--ui);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 7px;text-transform:uppercase;flex-shrink:0;min-width:64px;text-align:center}
 .tag-fact,.tag-timing,.tag-visual,.tag-decision{background:var(--green);color:var(--green-text)}
 .tag-risk,.tag-action{background:var(--red);color:var(--red-text)}
@@ -62,7 +72,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 .val-green{background:var(--green-bg);color:var(--green-text)}
 .val-amber{background:var(--amber-bg);color:var(--amber-text)}
 .val-purple{background:var(--purple);color:var(--purple-text)}
-.val-red{background:var(--red-bg);color:var(--red-text)}
 .gauge-bar{background:var(--panel2);border-top:2px solid var(--border2);display:flex;justify-content:space-around;align-items:center;padding:12px 24px 10px;gap:16px}
 .gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
 .gauge-label{font-family:var(--ui);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text-mid);text-align:center}
@@ -84,6 +93,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
   <div class="hdr-deco"><span></span><span></span><span></span></div>
   <div class="hdr-title">SCOPE PROTOCOL <em>×</em> MIND SCAN</div>
   <div class="hdr-deco" style="transform:scaleX(-1)"><span></span><span></span><span></span></div>
+</div>
+
+<div class="apikey-bar">
+  <div class="key-dot" id="keyDot"></div>
+  <label>ANTHROPIC API KEY</label>
+  <input type="password" id="apiKey" placeholder="sk-ant-..." oninput="onKeyInput(this.value)" autocomplete="off" spellcheck="false"/>
+  <span class="apikey-hint">Get yours at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a> — stored in memory only, never transmitted elsewhere</span>
 </div>
 
 <div class="status-bar">
@@ -110,36 +126,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 </div>
 
 <div class="main-grid">
-  <div class="panel" id="panelPriority">
-    <div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Priority Signals</div></div>
-    <div id="priorityContent"><div class="ph">High-certainty signals aligned with persona goals will appear here.</div></div>
-  </div>
-  <div class="panel" id="panelGaps">
-    <div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Knowledge Gaps</div></div>
-    <div id="gapsContent"><div class="ph">Items flagged as requiring context or simplification for this persona.</div></div>
-  </div>
-  <div class="panel" id="panelUncertain">
-    <div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Uncertain Signals</div></div>
-    <div id="uncertainContent"><div class="ph">Ambiguous or hard-to-classify items for this persona.</div></div>
-  </div>
-  <div class="panel" id="panelPersona">
-    <div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Persona Read</div></div>
-    <div id="personaContent"><div class="ph">Inferred persona state: knowledge, projects, goals, concerns.</div></div>
-  </div>
+  <div class="panel"><div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Priority Signals</div></div><div id="priorityContent"><div class="ph">High-certainty signals aligned with persona goals will appear here.</div></div></div>
+  <div class="panel"><div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Knowledge Gaps</div></div><div id="gapsContent"><div class="ph">Items flagged as requiring context or simplification for this persona.</div></div></div>
+  <div class="panel"><div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Uncertain Signals</div></div><div id="uncertainContent"><div class="ph">Ambiguous or hard-to-classify items for this persona.</div></div></div>
+  <div class="panel"><div class="panel-hdr"><div class="panel-icon"></div><div class="panel-title">Persona Read</div></div><div id="personaContent"><div class="ph">Inferred persona state: knowledge, projects, goals, concerns.</div></div></div>
 </div>
 
 <div class="gauge-bar">
   <div class="gauge-wrap">
     <div class="gauge-label">Relevance</div>
     <div class="gauge-svg-wrap">
-      <svg viewBox="0 0 130 68" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="#1c2d44" stroke-width="8" stroke-linecap="round"/>
-        <defs><linearGradient id="gRel" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#cc3030"/><stop offset="40%" stop-color="#c89020"/><stop offset="70%" stop-color="#3aaa50"/><stop offset="100%" stop-color="#3aaa50"/></linearGradient></defs>
-        <path id="arcRel" d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="url(#gRel)" stroke-width="8" stroke-linecap="round" stroke-dasharray="172.8" stroke-dashoffset="172.8" style="transition:stroke-dashoffset .9s ease"/>
-        <g stroke="#1c2d44" stroke-width="1.5"><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-90,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-67.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-45,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-22.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(0,65,65)"/></g>
-        <line id="needleRel" x1="65" y1="65" x2="65" y2="18" stroke="#e0e8f0" stroke-width="2" stroke-linecap="round" transform="rotate(-90,65,65)" style="transition:transform .9s ease"/>
-        <circle cx="65" cy="65" r="4" fill="#1c2d44" stroke="#4a9fd4" stroke-width="1.5"/>
-      </svg>
+      <svg viewBox="0 0 130 68"><path d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="#1c2d44" stroke-width="8" stroke-linecap="round"/>
+      <defs><linearGradient id="gR" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#cc3030"/><stop offset="40%" stop-color="#c89020"/><stop offset="100%" stop-color="#3aaa50"/></linearGradient></defs>
+      <path id="arcRel" d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="url(#gR)" stroke-width="8" stroke-linecap="round" stroke-dasharray="172.8" stroke-dashoffset="172.8" style="transition:stroke-dashoffset .9s ease"/>
+      <line id="needleRel" x1="65" y1="65" x2="65" y2="18" stroke="#e0e8f0" stroke-width="2" stroke-linecap="round" transform="rotate(-90,65,65)" style="transition:transform .9s ease"/>
+      <circle cx="65" cy="65" r="4" fill="#1c2d44" stroke="#4a9fd4" stroke-width="1.5"/></svg>
       <div class="gauge-num" id="numRel">—</div>
     </div>
   </div>
@@ -147,14 +148,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
   <div class="gauge-wrap">
     <div class="gauge-label">Certainty</div>
     <div class="gauge-svg-wrap">
-      <svg viewBox="0 0 130 68" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="#1c2d44" stroke-width="8" stroke-linecap="round"/>
-        <defs><linearGradient id="gCert" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1a4a6a"/><stop offset="50%" stop-color="#2a7ab0"/><stop offset="100%" stop-color="#4a9fd4"/></linearGradient></defs>
-        <path id="arcCert" d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="url(#gCert)" stroke-width="8" stroke-linecap="round" stroke-dasharray="172.8" stroke-dashoffset="172.8" style="transition:stroke-dashoffset .9s ease"/>
-        <g stroke="#1c2d44" stroke-width="1.5"><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-90,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-67.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-45,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-22.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(0,65,65)"/></g>
-        <line id="needleCert" x1="65" y1="65" x2="65" y2="18" stroke="#e0e8f0" stroke-width="2" stroke-linecap="round" transform="rotate(-90,65,65)" style="transition:transform .9s ease"/>
-        <circle cx="65" cy="65" r="4" fill="#1c2d44" stroke="#4a9fd4" stroke-width="1.5"/>
-      </svg>
+      <svg viewBox="0 0 130 68"><path d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="#1c2d44" stroke-width="8" stroke-linecap="round"/>
+      <defs><linearGradient id="gC" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1a4a6a"/><stop offset="100%" stop-color="#4a9fd4"/></linearGradient></defs>
+      <path id="arcCert" d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="url(#gC)" stroke-width="8" stroke-linecap="round" stroke-dasharray="172.8" stroke-dashoffset="172.8" style="transition:stroke-dashoffset .9s ease"/>
+      <line id="needleCert" x1="65" y1="65" x2="65" y2="18" stroke="#e0e8f0" stroke-width="2" stroke-linecap="round" transform="rotate(-90,65,65)" style="transition:transform .9s ease"/>
+      <circle cx="65" cy="65" r="4" fill="#1c2d44" stroke="#4a9fd4" stroke-width="1.5"/></svg>
       <div class="gauge-num" id="numCert">—</div>
     </div>
   </div>
@@ -162,14 +160,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
   <div class="gauge-wrap">
     <div class="gauge-label">Focus</div>
     <div class="gauge-svg-wrap">
-      <svg viewBox="0 0 130 68" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="#1c2d44" stroke-width="8" stroke-linecap="round"/>
-        <defs><linearGradient id="gFocus" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2a1a4a"/><stop offset="50%" stop-color="#5a2a9a"/><stop offset="100%" stop-color="#9a6acd"/></linearGradient></defs>
-        <path id="arcFocus" d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="url(#gFocus)" stroke-width="8" stroke-linecap="round" stroke-dasharray="172.8" stroke-dashoffset="172.8" style="transition:stroke-dashoffset .9s ease"/>
-        <g stroke="#1c2d44" stroke-width="1.5"><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-90,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-67.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-45,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(-22.5,65,65)"/><line x1="10" y1="65" x2="14" y2="65" transform="rotate(0,65,65)"/></g>
-        <line id="needleFocus" x1="65" y1="65" x2="65" y2="18" stroke="#e0e8f0" stroke-width="2" stroke-linecap="round" transform="rotate(-90,65,65)" style="transition:transform .9s ease"/>
-        <circle cx="65" cy="65" r="4" fill="#1c2d44" stroke="#4a9fd4" stroke-width="1.5"/>
-      </svg>
+      <svg viewBox="0 0 130 68"><path d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="#1c2d44" stroke-width="8" stroke-linecap="round"/>
+      <defs><linearGradient id="gF" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2a1a4a"/><stop offset="100%" stop-color="#9a6acd"/></linearGradient></defs>
+      <path id="arcFocus" d="M10,65 A55,55,0,0,1,120,65" fill="none" stroke="url(#gF)" stroke-width="8" stroke-linecap="round" stroke-dasharray="172.8" stroke-dashoffset="172.8" style="transition:stroke-dashoffset .9s ease"/>
+      <line id="needleFocus" x1="65" y1="65" x2="65" y2="18" stroke="#e0e8f0" stroke-width="2" stroke-linecap="round" transform="rotate(-90,65,65)" style="transition:transform .9s ease"/>
+      <circle cx="65" cy="65" r="4" fill="#1c2d44" stroke="#4a9fd4" stroke-width="1.5"/></svg>
       <div class="gauge-num" id="numFocus">—</div>
     </div>
   </div>
@@ -177,38 +172,35 @@ body{background:var(--bg);color:var(--text);font-family:var(--ui);font-size:14px
 
 <script>
 const PERSONAS={pm:{label:'"Product Manager"',text:'Product Manager focused on Q3 roadmap delivery, sprint velocity, and stakeholder communication. Cares about customer-facing features and cross-team dependencies. Less technical, needs implementation details translated into business impact.'},eng:{label:'"Senior Engineer"',text:'Senior software engineer focused on system reliability and technical debt. Skeptical of timeline estimates. Primary concerns: API performance, infrastructure costs, breaking changes, and test coverage. Wants root causes, not symptoms.'},exec:{label:'"Executive"',text:'VP of Product. Time-constrained. Needs strategic signal over tactical detail. Primary concerns: revenue impact, competitive positioning, team capacity, and risk. Wants decisions, not discussions.'},research:{label:'"Researcher"',text:'NLP researcher interested in methodology, evaluation metrics, and reproducibility. Skeptical of benchmark claims. Wants to understand design choices and theoretical grounding. Reads critically, looks for ablations and failure modes.'},agent:{label:'"Undercover Agent"',text:'Intelligence operative with mission-critical focus. Trained observer. Interested in anomalies, timing, locations, identities, and potential threats. Stealth protocol active. Heightened alert status. Tactical and cautious.'}};
-let apiCalls=0;
+let apiCalls=0,apiKey='';
+function onKeyInput(v){apiKey=v.trim();const d=document.getElementById('keyDot');d.className=v.startsWith('sk-ant-')&&v.length>20?'key-dot ok':'key-dot'}
 function setP(k){const p=PERSONAS[k];document.getElementById('persona').value=p.text;document.getElementById('personaLabel').textContent=p.label}
-function setGauge(id,val){const pct=Math.min(100,Math.max(0,val));const c=172.8;document.getElementById('arc'+id).style.strokeDashoffset=c-(c*pct/100);const angle=-90+(pct/100*180);document.getElementById('needle'+id).setAttribute('transform',`rotate(${angle},65,65)`);document.getElementById('num'+id).textContent=Math.round(pct)}
-function makeSegs(score,color='green',total=7){const on=Math.round((score/100)*total);let h='<div class="seg-bar">';for(let i=0;i<total;i++)h+=`<div class="seg${i<on?' on-'+color:''}"></div>`;return h+'</div>'}
-function tagClass(t){const m={DECISION:'tag-decision',ACTION:'tag-action',INSIGHT:'tag-insight',CONTEXT:'tag-context',FACT:'tag-fact',TIMING:'tag-timing',VISUAL:'tag-visual',RISK:'tag-risk',SPECULATIVE:'tag-spec',UNCLEAR:'tag-unclear'};return m[t?.toUpperCase()]||'tag-context'}
-function renderPriority(signals){const c=document.getElementById('priorityContent');c.innerHTML='';if(!signals?.length){c.innerHTML='<div class="ph">No priority signals detected.</div>';return}signals.forEach((s,i)=>{const div=document.createElement('div');div.className='fact-row';div.style.animationDelay=(i*.07)+'s';const sc=s.score>=70?'green':s.score>=40?'amber':'red';const t=(s.type||'FACT').toUpperCase();div.innerHTML=`<div class="fact-bullet"></div><div class="fact-text">${s.text}</div>${makeSegs(s.score,sc)}<div class="tag ${tagClass(t)}">${t}</div>`;c.appendChild(div)})}
-function renderGaps(gaps){const c=document.getElementById('gapsContent');c.innerHTML='';if(!gaps?.length){c.innerHTML='<div class="ph">No knowledge gaps flagged.</div>';return}gaps.forEach((g,i)=>{const div=document.createElement('div');div.className='gap-row';div.style.animationDelay=(i*.07)+'s';div.innerHTML=`<div class="fact-bullet"></div><div class="gap-text">${g}</div><div class="gap-badge"><div class="gap-q">?</div><div class="gap-unk">UNKNOWN</div></div>`;c.appendChild(div)})}
-function renderUncertain(items){const c=document.getElementById('uncertainContent');c.innerHTML='';if(!items?.length){c.innerHTML='<div class="ph">No uncertain signals.</div>';return}items.forEach((item,i)=>{const div=document.createElement('div');div.className='fact-row';div.style.animationDelay=(i*.07)+'s';div.innerHTML=`<div class="fact-bullet"></div><div class="fact-text">${item}</div>${makeSegs(45+Math.random()*20,'amber',7)}<div class="tag ${i%2===0?'tag-spec':'tag-unclear'}">${i%2===0?'SPECULATIVE':'UNCLEAR'}</div>`;c.appendChild(div)})}
-function renderPersona(profile){const c=document.getElementById('personaContent');c.innerHTML='';if(!profile){c.innerHTML='<div class="ph">No persona data.</div>';return}const rows=[['Prior Knowledge',profile.prior_knowledge,'val-blue'],['Active Project',profile.active_project,'val-green'],['Primary Goals',profile.goals,'val-blue'],['Alert Status',profile.urgency,'val-amber'],['Stance',profile.stance,'val-purple']];rows.forEach(([key,val,cls],i)=>{if(!val)return;const div=document.createElement('div');div.className='persona-row';div.style.animationDelay=(i*.07)+'s';const badge=val.length>22?val.substring(0,20)+'…':val;div.innerHTML=`<div class="persona-key"><div class="fact-bullet"></div>${key}</div><div class="persona-val ${cls}">${badge.toUpperCase()}</div>`;c.appendChild(div)})}
+function setGauge(id,val){const pct=Math.min(100,Math.max(0,val)),c=172.8;document.getElementById('arc'+id).style.strokeDashoffset=c-(c*pct/100);document.getElementById('needle'+id).setAttribute('transform',`rotate(${-90+(pct/100*180)},65,65)`);document.getElementById('num'+id).textContent=Math.round(pct)}
+function makeSegs(s,col='green',n=7){const on=Math.round((s/100)*n);let h='<div class="seg-bar">';for(let i=0;i<n;i++)h+=`<div class="seg${i<on?' on-'+col:''}"></div>`;return h+'</div>'}
+function tagCls(t){return{DECISION:'tag-decision',ACTION:'tag-action',INSIGHT:'tag-insight',CONTEXT:'tag-context',FACT:'tag-fact',TIMING:'tag-timing',VISUAL:'tag-visual',RISK:'tag-risk',SPECULATIVE:'tag-spec',UNCLEAR:'tag-unclear'}[t?.toUpperCase()]||'tag-context'}
+function renderPriority(s){const c=document.getElementById('priorityContent');c.innerHTML='';if(!s?.length){c.innerHTML='<div class="ph">No priority signals.</div>';return}s.forEach((x,i)=>{const d=document.createElement('div');d.className='fact-row';d.style.animationDelay=i*.07+'s';const col=x.score>=70?'green':x.score>=40?'amber':'red';const t=(x.type||'FACT').toUpperCase();d.innerHTML=`<div class="fact-bullet"></div><div class="fact-text">${x.text}</div>${makeSegs(x.score,col)}<div class="tag ${tagCls(t)}">${t}</div>`;c.appendChild(d)})}
+function renderGaps(g){const c=document.getElementById('gapsContent');c.innerHTML='';if(!g?.length){c.innerHTML='<div class="ph">No knowledge gaps flagged.</div>';return}g.forEach((x,i)=>{const d=document.createElement('div');d.className='gap-row';d.style.animationDelay=i*.07+'s';d.innerHTML=`<div class="fact-bullet"></div><div class="gap-text">${x}</div><div class="gap-badge"><div class="gap-q">?</div><div class="gap-unk">UNKNOWN</div></div>`;c.appendChild(d)})}
+function renderUncertain(u){const c=document.getElementById('uncertainContent');c.innerHTML='';if(!u?.length){c.innerHTML='<div class="ph">No uncertain signals.</div>';return}u.forEach((x,i)=>{const d=document.createElement('div');d.className='fact-row';d.style.animationDelay=i*.07+'s';d.innerHTML=`<div class="fact-bullet"></div><div class="fact-text">${x}</div>${makeSegs(45+Math.random()*20,'amber',7)}<div class="tag ${i%2?'tag-unclear':'tag-spec'}">${i%2?'UNCLEAR':'SPECULATIVE'}</div>`;c.appendChild(d)})}
+function renderPersona(p){const c=document.getElementById('personaContent');c.innerHTML='';if(!p){c.innerHTML='<div class="ph">No persona data.</div>';return}[['Prior Knowledge',p.prior_knowledge,'val-blue'],['Active Project',p.active_project,'val-green'],['Primary Goals',p.goals,'val-blue'],['Alert Status',p.urgency,'val-amber'],['Stance',p.stance,'val-purple']].forEach(([k,v,cls],i)=>{if(!v)return;const d=document.createElement('div');d.className='persona-row';d.style.animationDelay=i*.07+'s';const badge=v.length>22?v.slice(0,20)+'…':v;d.innerHTML=`<div class="persona-key"><div class="fact-bullet"></div>${k}</div><div class="persona-val ${cls}">${badge.toUpperCase()}</div>`;c.appendChild(d)})}
 async function runScan(){
   const transcript=document.getElementById('transcript').value.trim();
   const persona=document.getElementById('persona').value.trim();
-  const btn=document.getElementById('scanBtn');
-  const err=document.getElementById('errMsg');
+  const btn=document.getElementById('scanBtn'),err=document.getElementById('errMsg');
   err.textContent='';
+  if(!apiKey){err.textContent='ERROR: Enter your Anthropic API key above.';return}
   if(!transcript){err.textContent='ERROR: No transcript provided.';return}
   if(!persona){err.textContent='ERROR: No persona provided.';return}
   btn.disabled=true;btn.classList.add('running');btn.textContent='◉ SCANNING...';
-  document.getElementById('sDot').className='status-dot live';
-  document.getElementById('sText').textContent='ACTIVE';
+  document.getElementById('sDot').className='status-dot live';document.getElementById('sText').textContent='ACTIVE';
   ['priorityContent','gapsContent','uncertainContent','personaContent'].forEach(id=>{document.getElementById(id).innerHTML='<div class="ph" style="color:var(--blue);opacity:.6">[ Processing... ]</div>'});
-  const sys=`You are the SCOPE reasoning layer. Embody the given persona completely and analyze text from their exact perspective using a 9-question protocol.\n\nRespond ONLY with valid JSON:\n{\n  "metrics": { "relevance_score": 0-100, "certainty_score": 0-100, "focus_score": 0-100 },\n  "priority_signals": [ {"text": "concise signal", "score": 0-100, "type": "DECISION|ACTION|INSIGHT|FACT|TIMING|VISUAL|RISK|CONTEXT"} ],\n  "knowledge_gaps": ["string"],\n  "uncertain_signals": ["string"],\n  "persona_profile": { "prior_knowledge": "brief phrase", "active_project": "brief phrase", "goals": "brief phrase", "urgency": "brief phrase", "stance": "brief phrase" }\n}\n\nRules: priority_signals 3-6 items; knowledge_gaps 2-4 items; uncertain_signals 1-3 items; persona_profile single short phrases ≤5 words each; all scores integers 0-100.`;
+  const sys=`You are the SCOPE reasoning layer. Embody the given persona completely and analyze text from their exact perspective using a 9-question protocol.\n\nRespond ONLY with valid JSON:\n{\n"metrics":{"relevance_score":0-100,"certainty_score":0-100,"focus_score":0-100},\n"priority_signals":[{"text":"concise signal","score":0-100,"type":"DECISION|ACTION|INSIGHT|FACT|TIMING|VISUAL|RISK|CONTEXT"}],\n"knowledge_gaps":["string"],\n"uncertain_signals":["string"],\n"persona_profile":{"prior_knowledge":"brief phrase","active_project":"brief phrase","goals":"brief phrase","urgency":"brief phrase","stance":"brief phrase"}\n}\nRules: priority_signals 3-6 items; knowledge_gaps 2-4; uncertain_signals 1-3; persona_profile ≤5 words each; scores integers 0-100.`;
   const user=`EMBODY THIS PERSONA:\n${persona}\n\nANALYZE THIS TEXT:\n${transcript}\n\nApply SCOPE 9-question reasoning as this persona. Return only JSON.`;
   try{
-    apiCalls++;
-    document.getElementById('sCallCount').textContent=`API CALLS: ${apiCalls}`;
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:user}]})});
+    apiCalls++;document.getElementById('sCallCount').textContent=`API CALLS: ${apiCalls}`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[{role:'user',content:user}]})});
     const data=await res.json();
     if(data.error)throw new Error(data.error.message);
-    const raw=data.content[0].text;
-    let result;
-    try{const m=raw.match(/\{[\s\S]*\}/);result=JSON.parse(m?m[0]:raw)}catch(e){throw new Error('JSON parse failed: '+e.message)}
+    let result;try{const m=data.content[0].text.match(/\{[\s\S]*\}/);result=JSON.parse(m?m[0]:data.content[0].text)}catch(e){throw new Error('JSON parse failed')}
     const met=result.metrics||{};
     setTimeout(()=>{setGauge('Rel',met.relevance_score||0);setGauge('Cert',met.certainty_score||0);setGauge('Focus',met.focus_score||0)},150);
     setTimeout(()=>{renderPriority(result.priority_signals);renderGaps(result.knowledge_gaps);renderUncertain(result.uncertain_signals);renderPersona(result.persona_profile);document.getElementById('sFactCount').textContent=`SIGNALS: ${(result.priority_signals||[]).length}`},300);
